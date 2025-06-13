@@ -1,0 +1,713 @@
+import { z } from 'zod';
+export declare const okrTypeEnum: z.ZodEnum<["company", "department", "team", "individual"]>;
+export declare const okrStatusEnum: z.ZodEnum<["active", "completed", "archived"]>;
+export declare const timeEntryCategoryEnum: z.ZodEnum<["direct_work", "planning", "collaboration", "review", "other"]>;
+export declare const snapshotTypeEnum: z.ZodEnum<["manual", "auto_weekly", "cycle_end"]>;
+export declare const okrSchema: z.ZodObject<{
+    id: z.ZodString;
+    title: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    type: z.ZodEnum<["company", "department", "team", "individual"]>;
+    status: z.ZodEnum<["active", "completed", "archived"]>;
+    parentOkrId: z.ZodOptional<z.ZodString>;
+    ownerUserId: z.ZodString;
+    organizationId: z.ZodString;
+    tags: z.ZodArray<z.ZodString, "many">;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    status: "active" | "completed" | "archived";
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    tags: string[];
+    deletedAt?: Date | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+}, {
+    id: string;
+    status: "active" | "completed" | "archived";
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    tags: string[];
+    deletedAt?: Date | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+}>;
+export declare const keyResultSchema: z.ZodObject<{
+    id: z.ZodString;
+    okrId: z.ZodString;
+    description: z.ZodString;
+    targetScore: z.ZodNumber;
+    currentScore: z.ZodNumber;
+    progressNotes: z.ZodOptional<z.ZodString>;
+    dueDate: z.ZodOptional<z.ZodDate>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    version: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    version: number;
+    okrId: string;
+    description: string;
+    targetScore: number;
+    currentScore: number;
+    progressNotes?: string | undefined;
+    dueDate?: Date | undefined;
+}, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    version: number;
+    okrId: string;
+    description: string;
+    targetScore: number;
+    currentScore: number;
+    progressNotes?: string | undefined;
+    dueDate?: Date | undefined;
+}>;
+export declare const okrProgressSnapshotSchema: z.ZodObject<{
+    id: z.ZodString;
+    keyResultId: z.ZodString;
+    score: z.ZodNumber;
+    notes: z.ZodOptional<z.ZodString>;
+    recordedAt: z.ZodDate;
+    recordedById: z.ZodString;
+    snapshotType: z.ZodEnum<["manual", "auto_weekly", "cycle_end"]>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    keyResultId: string;
+    score: number;
+    recordedAt: Date;
+    recordedById: string;
+    snapshotType: "manual" | "auto_weekly" | "cycle_end";
+    notes?: string | undefined;
+}, {
+    id: string;
+    keyResultId: string;
+    score: number;
+    recordedAt: Date;
+    recordedById: string;
+    snapshotType: "manual" | "auto_weekly" | "cycle_end";
+    notes?: string | undefined;
+}>;
+export declare const timeEntrySchema: z.ZodObject<{
+    id: z.ZodString;
+    userId: z.ZodString;
+    okrId: z.ZodString;
+    keyResultId: z.ZodOptional<z.ZodString>;
+    date: z.ZodDate;
+    hoursSpent: z.ZodNumber;
+    description: z.ZodOptional<z.ZodString>;
+    category: z.ZodEnum<["direct_work", "planning", "collaboration", "review", "other"]>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    date: Date;
+    userId: string;
+    okrId: string;
+    hoursSpent: number;
+    category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+    deletedAt?: Date | undefined;
+    keyResultId?: string | undefined;
+    description?: string | undefined;
+}, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    date: Date;
+    userId: string;
+    okrId: string;
+    hoursSpent: number;
+    category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+    deletedAt?: Date | undefined;
+    keyResultId?: string | undefined;
+    description?: string | undefined;
+}>;
+export declare const timeAllocationSchema: z.ZodObject<{
+    id: z.ZodString;
+    okrId: z.ZodString;
+    expectedWeeklyHours: z.ZodNumber;
+    minimumAllocationPercentage: z.ZodNumber;
+    startDate: z.ZodDate;
+    endDate: z.ZodOptional<z.ZodDate>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    startDate: Date;
+    okrId: string;
+    expectedWeeklyHours: number;
+    minimumAllocationPercentage: number;
+    deletedAt?: Date | undefined;
+    endDate?: Date | undefined;
+}, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    startDate: Date;
+    okrId: string;
+    expectedWeeklyHours: number;
+    minimumAllocationPercentage: number;
+    deletedAt?: Date | undefined;
+    endDate?: Date | undefined;
+}>;
+export declare const timeUtilizationMetricsSchema: z.ZodObject<{
+    id: z.ZodString;
+    userId: z.ZodString;
+    okrId: z.ZodString;
+    weekStarting: z.ZodDate;
+    plannedHours: z.ZodNumber;
+    actualHours: z.ZodNumber;
+    efficiencyScore: z.ZodNumber;
+    createdAt: z.ZodDate;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    createdAt: Date;
+    userId: string;
+    okrId: string;
+    weekStarting: Date;
+    plannedHours: number;
+    actualHours: number;
+    efficiencyScore: number;
+}, {
+    id: string;
+    createdAt: Date;
+    userId: string;
+    okrId: string;
+    weekStarting: Date;
+    plannedHours: number;
+    actualHours: number;
+    efficiencyScore: number;
+}>;
+export declare const createOKRSchema: z.ZodObject<{
+    title: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    type: z.ZodEnum<["company", "department", "team", "individual"]>;
+    parentOkrId: z.ZodOptional<z.ZodString>;
+    ownerUserId: z.ZodString;
+    organizationId: z.ZodString;
+    tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strict", z.ZodTypeAny, {
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    tags?: string[] | undefined;
+}, {
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    tags?: string[] | undefined;
+}>;
+export declare const updateOKRSchema: z.ZodObject<{
+    title: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodEnum<["active", "completed", "archived"]>>;
+    parentOkrId: z.ZodOptional<z.ZodString>;
+    tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strict", z.ZodTypeAny, {
+    status?: "active" | "completed" | "archived" | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    tags?: string[] | undefined;
+}, {
+    status?: "active" | "completed" | "archived" | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    tags?: string[] | undefined;
+}>;
+export declare const createKeyResultSchema: z.ZodObject<{
+    okrId: z.ZodString;
+    description: z.ZodString;
+    targetScore: z.ZodNumber;
+    dueDate: z.ZodOptional<z.ZodDate>;
+}, "strict", z.ZodTypeAny, {
+    okrId: string;
+    description: string;
+    targetScore: number;
+    dueDate?: Date | undefined;
+}, {
+    okrId: string;
+    description: string;
+    targetScore: number;
+    dueDate?: Date | undefined;
+}>;
+export declare const updateKeyResultSchema: z.ZodObject<{
+    description: z.ZodOptional<z.ZodString>;
+    targetScore: z.ZodOptional<z.ZodNumber>;
+    currentScore: z.ZodOptional<z.ZodNumber>;
+    progressNotes: z.ZodOptional<z.ZodString>;
+    dueDate: z.ZodOptional<z.ZodDate>;
+}, "strict", z.ZodTypeAny, {
+    description?: string | undefined;
+    targetScore?: number | undefined;
+    currentScore?: number | undefined;
+    progressNotes?: string | undefined;
+    dueDate?: Date | undefined;
+}, {
+    description?: string | undefined;
+    targetScore?: number | undefined;
+    currentScore?: number | undefined;
+    progressNotes?: string | undefined;
+    dueDate?: Date | undefined;
+}>;
+export declare const createTimeEntrySchema: z.ZodObject<{
+    userId: z.ZodString;
+    okrId: z.ZodString;
+    keyResultId: z.ZodOptional<z.ZodString>;
+    date: z.ZodDate;
+    hoursSpent: z.ZodNumber;
+    description: z.ZodOptional<z.ZodString>;
+    category: z.ZodEnum<["direct_work", "planning", "collaboration", "review", "other"]>;
+}, "strict", z.ZodTypeAny, {
+    date: Date;
+    userId: string;
+    okrId: string;
+    hoursSpent: number;
+    category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+    keyResultId?: string | undefined;
+    description?: string | undefined;
+}, {
+    date: Date;
+    userId: string;
+    okrId: string;
+    hoursSpent: number;
+    category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+    keyResultId?: string | undefined;
+    description?: string | undefined;
+}>;
+export declare const updateTimeEntrySchema: z.ZodObject<{
+    hoursSpent: z.ZodOptional<z.ZodNumber>;
+    description: z.ZodOptional<z.ZodString>;
+    category: z.ZodOptional<z.ZodEnum<["direct_work", "planning", "collaboration", "review", "other"]>>;
+}, "strict", z.ZodTypeAny, {
+    hoursSpent?: number | undefined;
+    description?: string | undefined;
+    category?: "direct_work" | "planning" | "collaboration" | "review" | "other" | undefined;
+}, {
+    hoursSpent?: number | undefined;
+    description?: string | undefined;
+    category?: "direct_work" | "planning" | "collaboration" | "review" | "other" | undefined;
+}>;
+export declare const okrWithRelationsSchema: z.ZodObject<{
+    id: z.ZodString;
+    title: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    type: z.ZodEnum<["company", "department", "team", "individual"]>;
+    status: z.ZodEnum<["active", "completed", "archived"]>;
+    parentOkrId: z.ZodOptional<z.ZodString>;
+    ownerUserId: z.ZodString;
+    organizationId: z.ZodString;
+    tags: z.ZodArray<z.ZodString, "many">;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+} & {
+    keyResults: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        okrId: z.ZodString;
+        description: z.ZodString;
+        targetScore: z.ZodNumber;
+        currentScore: z.ZodNumber;
+        progressNotes: z.ZodOptional<z.ZodString>;
+        dueDate: z.ZodOptional<z.ZodDate>;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+        version: z.ZodNumber;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        version: number;
+        okrId: string;
+        description: string;
+        targetScore: number;
+        currentScore: number;
+        progressNotes?: string | undefined;
+        dueDate?: Date | undefined;
+    }, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        version: number;
+        okrId: string;
+        description: string;
+        targetScore: number;
+        currentScore: number;
+        progressNotes?: string | undefined;
+        dueDate?: Date | undefined;
+    }>, "many">;
+    parent: z.ZodOptional<z.ZodObject<{
+        id: z.ZodString;
+        title: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        type: z.ZodEnum<["company", "department", "team", "individual"]>;
+        status: z.ZodEnum<["active", "completed", "archived"]>;
+        parentOkrId: z.ZodOptional<z.ZodString>;
+        ownerUserId: z.ZodString;
+        organizationId: z.ZodString;
+        tags: z.ZodArray<z.ZodString, "many">;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+        deletedAt: z.ZodOptional<z.ZodDate>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }, {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }>>;
+    children: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        title: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        type: z.ZodEnum<["company", "department", "team", "individual"]>;
+        status: z.ZodEnum<["active", "completed", "archived"]>;
+        parentOkrId: z.ZodOptional<z.ZodString>;
+        ownerUserId: z.ZodString;
+        organizationId: z.ZodString;
+        tags: z.ZodArray<z.ZodString, "many">;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+        deletedAt: z.ZodOptional<z.ZodDate>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }, {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }>, "many">>;
+    owner: z.ZodObject<{
+        id: z.ZodString;
+        firstName: z.ZodString;
+        lastName: z.ZodString;
+        email: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    }, {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    }>;
+    timeEntries: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        userId: z.ZodString;
+        okrId: z.ZodString;
+        keyResultId: z.ZodOptional<z.ZodString>;
+        date: z.ZodDate;
+        hoursSpent: z.ZodNumber;
+        description: z.ZodOptional<z.ZodString>;
+        category: z.ZodEnum<["direct_work", "planning", "collaboration", "review", "other"]>;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+        deletedAt: z.ZodOptional<z.ZodDate>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+        userId: string;
+        okrId: string;
+        hoursSpent: number;
+        category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+        deletedAt?: Date | undefined;
+        keyResultId?: string | undefined;
+        description?: string | undefined;
+    }, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+        userId: string;
+        okrId: string;
+        hoursSpent: number;
+        category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+        deletedAt?: Date | undefined;
+        keyResultId?: string | undefined;
+        description?: string | undefined;
+    }>, "many">>;
+    timeAllocations: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        okrId: z.ZodString;
+        expectedWeeklyHours: z.ZodNumber;
+        minimumAllocationPercentage: z.ZodNumber;
+        startDate: z.ZodDate;
+        endDate: z.ZodOptional<z.ZodDate>;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+        deletedAt: z.ZodOptional<z.ZodDate>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        startDate: Date;
+        okrId: string;
+        expectedWeeklyHours: number;
+        minimumAllocationPercentage: number;
+        deletedAt?: Date | undefined;
+        endDate?: Date | undefined;
+    }, {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        startDate: Date;
+        okrId: string;
+        expectedWeeklyHours: number;
+        minimumAllocationPercentage: number;
+        deletedAt?: Date | undefined;
+        endDate?: Date | undefined;
+    }>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    status: "active" | "completed" | "archived";
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    tags: string[];
+    keyResults: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        version: number;
+        okrId: string;
+        description: string;
+        targetScore: number;
+        currentScore: number;
+        progressNotes?: string | undefined;
+        dueDate?: Date | undefined;
+    }[];
+    owner: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    };
+    deletedAt?: Date | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    parent?: {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    } | undefined;
+    children?: {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }[] | undefined;
+    timeEntries?: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+        userId: string;
+        okrId: string;
+        hoursSpent: number;
+        category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+        deletedAt?: Date | undefined;
+        keyResultId?: string | undefined;
+        description?: string | undefined;
+    }[] | undefined;
+    timeAllocations?: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        startDate: Date;
+        okrId: string;
+        expectedWeeklyHours: number;
+        minimumAllocationPercentage: number;
+        deletedAt?: Date | undefined;
+        endDate?: Date | undefined;
+    }[] | undefined;
+}, {
+    id: string;
+    status: "active" | "completed" | "archived";
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    type: "department" | "team" | "company" | "individual";
+    title: string;
+    ownerUserId: string;
+    tags: string[];
+    keyResults: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        version: number;
+        okrId: string;
+        description: string;
+        targetScore: number;
+        currentScore: number;
+        progressNotes?: string | undefined;
+        dueDate?: Date | undefined;
+    }[];
+    owner: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    };
+    deletedAt?: Date | undefined;
+    description?: string | undefined;
+    parentOkrId?: string | undefined;
+    parent?: {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    } | undefined;
+    children?: {
+        id: string;
+        status: "active" | "completed" | "archived";
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        type: "department" | "team" | "company" | "individual";
+        title: string;
+        ownerUserId: string;
+        tags: string[];
+        deletedAt?: Date | undefined;
+        description?: string | undefined;
+        parentOkrId?: string | undefined;
+    }[] | undefined;
+    timeEntries?: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        date: Date;
+        userId: string;
+        okrId: string;
+        hoursSpent: number;
+        category: "direct_work" | "planning" | "collaboration" | "review" | "other";
+        deletedAt?: Date | undefined;
+        keyResultId?: string | undefined;
+        description?: string | undefined;
+    }[] | undefined;
+    timeAllocations?: {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        startDate: Date;
+        okrId: string;
+        expectedWeeklyHours: number;
+        minimumAllocationPercentage: number;
+        deletedAt?: Date | undefined;
+        endDate?: Date | undefined;
+    }[] | undefined;
+}>;
+export type OKRType = z.infer<typeof okrTypeEnum>;
+export type OKRStatus = z.infer<typeof okrStatusEnum>;
+export type TimeEntryCategory = z.infer<typeof timeEntryCategoryEnum>;
+export type SnapshotType = z.infer<typeof snapshotTypeEnum>;
+export type OKR = z.infer<typeof okrSchema>;
+export type KeyResult = z.infer<typeof keyResultSchema>;
+export type OKRProgressSnapshot = z.infer<typeof okrProgressSnapshotSchema>;
+export type TimeEntry = z.infer<typeof timeEntrySchema>;
+export type TimeAllocation = z.infer<typeof timeAllocationSchema>;
+export type TimeUtilizationMetrics = z.infer<typeof timeUtilizationMetricsSchema>;
+export type CreateOKRRequest = z.infer<typeof createOKRSchema>;
+export type UpdateOKRRequest = z.infer<typeof updateOKRSchema>;
+export type CreateKeyResultRequest = z.infer<typeof createKeyResultSchema>;
+export type UpdateKeyResultRequest = z.infer<typeof updateKeyResultSchema>;
+export type CreateTimeEntryRequest = z.infer<typeof createTimeEntrySchema>;
+export type UpdateTimeEntryRequest = z.infer<typeof updateTimeEntrySchema>;
+export type OKRWithRelations = z.infer<typeof okrWithRelationsSchema>;

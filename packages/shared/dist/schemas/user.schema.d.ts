@@ -1,0 +1,102 @@
+import { z } from 'zod';
+export declare const userRoleSchema: z.ZodNativeEnum<any>;
+export declare const userStatusSchema: z.ZodNativeEnum<any>;
+export declare const userSchema: z.ZodObject<{
+    id: z.ZodString;
+    email: z.ZodString;
+    firstName: z.ZodString;
+    lastName: z.ZodString;
+    role: z.ZodNativeEnum<any>;
+    status: z.ZodNativeEnum<any>;
+    hireDate: z.ZodDate;
+    terminationDate: z.ZodOptional<z.ZodDate>;
+    currentManagerId: z.ZodOptional<z.ZodString>;
+    organizationId: z.ZodString;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+}, "strip", z.ZodTypeAny, {
+    [x: string]: any;
+    id?: unknown;
+    email?: unknown;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    status?: unknown;
+    hireDate?: unknown;
+    terminationDate?: unknown;
+    currentManagerId?: unknown;
+    organizationId?: unknown;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+    deletedAt?: unknown;
+}, {
+    [x: string]: any;
+    id?: unknown;
+    email?: unknown;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    status?: unknown;
+    hireDate?: unknown;
+    terminationDate?: unknown;
+    currentManagerId?: unknown;
+    organizationId?: unknown;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+    deletedAt?: unknown;
+}>;
+export declare const userCreateSchema: z.ZodObject<{
+    email: z.ZodString;
+    firstName: z.ZodString;
+    lastName: z.ZodString;
+    role: z.ZodNativeEnum<any>;
+    hireDate: z.ZodDate;
+    currentManagerId: z.ZodOptional<z.ZodString>;
+    organizationId: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    [x: string]: any;
+    email?: unknown;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    hireDate?: unknown;
+    currentManagerId?: unknown;
+    organizationId?: unknown;
+}, {
+    [x: string]: any;
+    email?: unknown;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    hireDate?: unknown;
+    currentManagerId?: unknown;
+    organizationId?: unknown;
+}>;
+export declare const userUpdateSchema: z.ZodObject<{
+    firstName: z.ZodOptional<z.ZodString>;
+    lastName: z.ZodOptional<z.ZodString>;
+    role: z.ZodOptional<z.ZodNativeEnum<any>>;
+    status: z.ZodOptional<z.ZodNativeEnum<any>>;
+    currentManagerId: z.ZodOptional<z.ZodString>;
+    terminationDate: z.ZodOptional<z.ZodDate>;
+}, "strict", z.ZodTypeAny, {
+    [x: string]: any;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    status?: unknown;
+    currentManagerId?: unknown;
+    terminationDate?: unknown;
+}, {
+    [x: string]: any;
+    firstName?: unknown;
+    lastName?: unknown;
+    role?: unknown;
+    status?: unknown;
+    currentManagerId?: unknown;
+    terminationDate?: unknown;
+}>;
+export type User = z.infer<typeof userSchema>;
+export type UserCreateInput = z.infer<typeof userCreateSchema>;
+export type UserUpdateInput = z.infer<typeof userUpdateSchema>;

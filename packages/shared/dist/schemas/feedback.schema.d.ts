@@ -1,0 +1,100 @@
+import { z } from 'zod';
+import { Visibility, Sentiment } from '../types/feedback';
+export declare const visibilitySchema: z.ZodNativeEnum<typeof Visibility>;
+export declare const sentimentSchema: z.ZodNativeEnum<typeof Sentiment>;
+export declare const feedbackSchema: z.ZodObject<{
+    id: z.ZodString;
+    authorId: z.ZodString;
+    receiverId: z.ZodString;
+    visibility: z.ZodNativeEnum<typeof Visibility>;
+    feedbackText: z.ZodString;
+    skillTags: z.ZodArray<z.ZodString, "many">;
+    companyValueTags: z.ZodArray<z.ZodString, "many">;
+    initiativeTags: z.ZodArray<z.ZodString, "many">;
+    sentiment: z.ZodOptional<z.ZodNativeEnum<typeof Sentiment>>;
+    aiFlags: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+    deletedAt: z.ZodOptional<z.ZodDate>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    authorId: string;
+    receiverId: string;
+    visibility: Visibility;
+    feedbackText: string;
+    skillTags: string[];
+    companyValueTags: string[];
+    initiativeTags: string[];
+    aiFlags: Record<string, unknown>;
+    deletedAt?: Date | undefined;
+    sentiment?: Sentiment | undefined;
+}, {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    authorId: string;
+    receiverId: string;
+    visibility: Visibility;
+    feedbackText: string;
+    skillTags: string[];
+    companyValueTags: string[];
+    initiativeTags: string[];
+    aiFlags: Record<string, unknown>;
+    deletedAt?: Date | undefined;
+    sentiment?: Sentiment | undefined;
+}>;
+export declare const feedbackCreateSchema: z.ZodObject<{
+    authorId: z.ZodString;
+    receiverId: z.ZodString;
+    visibility: z.ZodOptional<z.ZodNativeEnum<typeof Visibility>>;
+    feedbackText: z.ZodString;
+    skillTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    companyValueTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    initiativeTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strict", z.ZodTypeAny, {
+    authorId: string;
+    receiverId: string;
+    feedbackText: string;
+    visibility?: Visibility | undefined;
+    skillTags?: string[] | undefined;
+    companyValueTags?: string[] | undefined;
+    initiativeTags?: string[] | undefined;
+}, {
+    authorId: string;
+    receiverId: string;
+    feedbackText: string;
+    visibility?: Visibility | undefined;
+    skillTags?: string[] | undefined;
+    companyValueTags?: string[] | undefined;
+    initiativeTags?: string[] | undefined;
+}>;
+export declare const feedbackUpdateSchema: z.ZodObject<{
+    visibility: z.ZodOptional<z.ZodNativeEnum<typeof Visibility>>;
+    feedbackText: z.ZodOptional<z.ZodString>;
+    skillTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    companyValueTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    initiativeTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    sentiment: z.ZodOptional<z.ZodNativeEnum<typeof Sentiment>>;
+    aiFlags: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, "strict", z.ZodTypeAny, {
+    visibility?: Visibility | undefined;
+    feedbackText?: string | undefined;
+    skillTags?: string[] | undefined;
+    companyValueTags?: string[] | undefined;
+    initiativeTags?: string[] | undefined;
+    sentiment?: Sentiment | undefined;
+    aiFlags?: Record<string, unknown> | undefined;
+}, {
+    visibility?: Visibility | undefined;
+    feedbackText?: string | undefined;
+    skillTags?: string[] | undefined;
+    companyValueTags?: string[] | undefined;
+    initiativeTags?: string[] | undefined;
+    sentiment?: Sentiment | undefined;
+    aiFlags?: Record<string, unknown> | undefined;
+}>;
+export type Feedback = z.infer<typeof feedbackSchema>;
+export type FeedbackCreateInput = z.infer<typeof feedbackCreateSchema>;
+export type FeedbackUpdateInput = z.infer<typeof feedbackUpdateSchema>;
