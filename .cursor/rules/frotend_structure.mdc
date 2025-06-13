@@ -1,0 +1,296 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🎨 Frontend Design Guide — AI Performance Platform (Lattice Inspired)
+
+Excellent — now you're thinking like a real product architect 🚀
+Let's lock down your **Frontend Design System** inspired by Lattice's design style.
+
+## 1️⃣ Primary & Secondary Colors
+
+> Lattice uses a modern SaaS B2B corporate palette — minimal, professional, slightly playful but trustworthy.
+
+| Purpose             | Color                  | Notes              |
+| ------------------- | ---------------------- | ------------------ |
+| **Primary**         | `#4F46E5` (Indigo 600) | Main CTAs, Buttons |
+| **Primary Hover**   | `#4338CA`              | Button Hover       |
+| **Secondary**       | `#6366F1` (Indigo 500) | Secondary CTAs     |
+| **Accent 1**        | `#22C55E` (Green 500)  | Success / Progress |
+| **Accent 2**        | `#EF4444` (Red 500)    | Error / Failure    |
+| **Accent 3**        | `#F59E0B` (Amber 500)  | Warning / Pending  |
+| **Text Primary**    | `#111827` (Gray 900)   | Body Text          |
+| **Text Secondary**  | `#6B7280` (Gray 500)   | Captions / Labels  |
+| **Background**      | `#F9FAFB` (Gray 50)    | App Background     |
+| **Card Background** | `#FFFFFF`              | Panels / Cards     |
+| **Border Color**    | `#E5E7EB` (Gray 200)   | Input / Dividers   |
+
+You can expand using **Tailwind Default Colors** as most of them match closely to Lattice's vibes.
+
+## 2️⃣ Fonts
+
+> Modern Sans-serif system fonts for accessibility and enterprise feel.
+
+- **Primary Font:** `Inter`
+- **Secondary Font:** `SF Pro` or `system-ui` fallback
+- **Body font-weight:** `400-500`
+- **Heading font-weight:** `600-700`
+
+📦 **CDN / Package:**
+- Google Fonts: `https://fonts.google.com/specimen/Inter`
+
+**Tailwind Setup:**
+
+```javascript
+fontFamily: {
+  sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+},
+```
+
+## 3️⃣ Full Color Palette (Extended)
+
+| Purpose    | Color   |
+| ---------- | ------- |
+| Indigo 50  | #EEF2FF |
+| Indigo 100 | #E0E7FF |
+| Indigo 200 | #C7D2FE |
+| Indigo 300 | #A5B4FC |
+| Indigo 400 | #818CF8 |
+| Indigo 500 | #6366F1 |
+| Indigo 600 | #4F46E5 |
+| Indigo 700 | #4338CA |
+| Indigo 800 | #3730A3 |
+| Indigo 900 | #312E81 |
+| Gray 50    | #F9FAFB |
+| Gray 100   | #F3F4F6 |
+| Gray 200   | #E5E7EB |
+| Gray 300   | #D1D5DB |
+| Gray 400   | #9CA3AF |
+| Gray 500   | #6B7280 |
+| Gray 600   | #4B5563 |
+| Gray 700   | #374151 |
+| Gray 800   | #1F2937 |
+| Gray 900   | #111827 |
+
+You can fully leverage Tailwind default for these.
+
+## 4️⃣ Spacing System
+
+> Stick with consistent 4px scale system, as most enterprise SaaS adopt.
+
+| Name | Value |
+| ---- | ----- |
+| xs   | 4px   |
+| sm   | 8px   |
+| md   | 16px  |
+| lg   | 24px  |
+| xl   | 32px  |
+| 2xl  | 48px  |
+| 3xl  | 64px  |
+
+**Rule of thumb:**
+- Components = `md` (16px) padding
+- Section = `xl` (32px) padding
+- Cards = `lg` (24px) padding inside
+
+## 5️⃣ UI Patterns
+
+Lattice heavily uses:
+
+- Card-based modular layouts (information panels)
+- Sectioned dashboards
+- Left-hand sidebar navigation
+- Fixed top header
+- Floating modals/dialogs
+- Hover-based menus & dropdowns
+- Filters & tabs for lists
+- Multi-step flows for review creation
+- Full-page modals for AI suggest / summarize tasks
+
+✅ **Reusable Component System:**
+- `Card`
+- `Modal`
+- `Drawer`
+- `Toast`
+- `Form`
+- `Table`
+- `Tabs`
+- `Date Picker`
+- `Stepper`
+- `Skeleton` (Loading states)
+- `SkeletonCard`
+- `SkeletonTable`
+- `SkeletonAvatar`
+
+✅ **Use ShadCN UI wherever possible:**
+- Already very close to Lattice design patterns
+
+## 6️⃣ Icons
+
+Use modern, clean icon sets:
+
+- `Lucide Icons` (recommended)
+- `HeroIcons` as secondary option
+- Avoid material icons (too consumerish)
+
+**Example packages:**
+
+```bash
+npm install lucide-react
+```
+
+## 9️⃣ Loading States & Skeletons
+
+> Professional loading states are crucial for perceived performance and user experience.
+
+### Skeleton Design Principles
+
+- **Shimmer Effect**: Subtle animated gradient for modern feel
+- **Shape Matching**: Skeletons should match the actual content layout
+- **Progressive Loading**: Show structure first, then fill with content
+- **Consistent Timing**: 1.5s shimmer animation cycle
+
+### Color Palette for Skeletons
+
+| Purpose           | Color                | Usage                    |
+| ----------------- | -------------------- | ------------------------ |
+| **Base**          | `#F3F4F6` (Gray 100) | Skeleton background      |
+| **Shimmer Start** | `#E5E7EB` (Gray 200) | Animation start color    |
+| **Shimmer End**   | `#F9FAFB` (Gray 50)  | Animation end color      |
+
+### Skeleton Components
+
+**Basic Skeleton:**
+```jsx
+<div className="animate-pulse bg-gray-200 rounded"></div>
+```
+
+**Shimmer Animation (CSS):**
+```css
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+```
+
+### Common Skeleton Patterns
+
+#### Dashboard Card Skeleton
+- Header: 24px height rectangle
+- Subtext: 16px height, 60% width
+- Chart/Content: 200px height rectangle
+- Footer: 20px height, 40% width
+
+#### Table Row Skeleton
+- Avatar: 40px circle
+- Name: 120px × 16px rectangle
+- Email: 180px × 14px rectangle
+- Status: 80px × 12px rounded pill
+- Actions: 24px × 24px circles (3x)
+
+#### User Profile Skeleton
+- Avatar: 80px circle
+- Name: 200px × 20px rectangle
+- Title: 150px × 16px rectangle
+- Bio: Multiple 100% width lines, last line 70%
+
+#### Form Field Skeleton
+- Label: 100px × 14px rectangle
+- Input: 100% × 40px rounded rectangle
+- Helper text: 200px × 12px rectangle
+
+### Loading States Strategy
+
+1. **Instant Skeletons**: Show immediately on route change
+2. **Staggered Loading**: Components appear progressively
+3. **Content Replacement**: Smooth transition from skeleton to content
+4. **Error States**: Graceful fallback when loading fails
+
+### Implementation Examples
+
+**Page-Level Loading:**
+```jsx
+// app/dashboard/loading.tsx
+export default function DashboardLoading() {
+  return <DashboardSkeleton />
+}
+```
+
+**Component-Level Loading:**
+```jsx
+const UserCard = ({ userId }) => {
+  const { data, isLoading } = useUser(userId)
+  
+  if (isLoading) return <UserCardSkeleton />
+  return <UserCardContent data={data} />
+}
+```
+
+### Performance Considerations
+
+- Use CSS animations over JavaScript for better performance
+- Implement proper `loading.tsx` files for Next.js 15 App Router
+- Consider using React 18 Suspense boundaries
+- Optimize skeleton complexity vs. loading speed
+
+### Component Architecture
+
+- Favor Server Components (RSC) where possible
+- Minimize 'use client' directives
+- Implement proper error boundaries
+- Use Suspense for async operations
+- Optimize for performance and Web Vitals
+
+### Naming Conventions
+
+- Use descriptive names with auxiliary verbs (isLoading, hasError)
+- Prefix event handlers with "handle" (handleClick, handleSubmit)
+- Use lowercase with dashes for directories (components/auth-wizard)
+- Favor named exports for components
+
+### Actual Product Inspiration
+
+- [Lattice Homepage](mdc:https:/lattice.com)
+- [Performance Management](mdc:https:/lattice.com/product/performance-management)
+- [Engagement](mdc:https:/lattice.com/product/engagement)
+
+### Tailwind UI Examples
+
+- [Application Forms](mdc:https:/tailwindui.com/components/application-ui/forms)
+- [Data Display Cards](mdc:https:/tailwindui.com/components/application-ui/data-display/cards)
+
+### Color Inspiration
+
+- [Tailwind Colors](mdc:https:/tailwindcss.com/docs/customizing-colors)
+- [Theme Generator](mdc:https:/tailwindcomponents.com/theme-generator)
+
+## 1️⃣1️⃣ Documentation Links
+
+| Topic        | Link                                                                               |
+| ------------ | ---------------------------------------------------------------------------------- |
+| TailwindCSS  | [https://tailwindcss.com/docs](mdc:https:/tailwindcss.com/docs)                       |
+| ShadCN UI    | [https://ui.shadcn.com/docs](mdc:https:/ui.shadcn.com/docs)                           |
+| Lucide Icons | [https://lucide.dev](mdc:https:/lucide.dev)                                           |
+| Next.js      | [https://nextjs.org/docs](mdc:https:/nextjs.org/docs)                                 |
+| Headless UI  | [https://headlessui.dev/](mdc:https:/headlessui.dev)                                 |
+| Fonts        | [https://fonts.google.com/specimen/Inter](mdc:https:/fonts.google.com/specimen/Inter) |
+
+## 📝 Quick Summary Stack
+
+- **Framework**: Next.js 14 App Router
+- **UI**: TailwindCSS + ShadCN UI
+- **Icons**: Lucide
+- **Fonts**: Inter
+- **Design System**: Lattice-inspired SaaS B2B minimalism
+
+---
+
+✅ **This becomes your "Frontend Design System Doc" for coding agents & designers.**
+

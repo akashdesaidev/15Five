@@ -1,0 +1,346 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 📋 15Five Clone — Optimized Full-Stack Development Plan
+
+## 🎯 PHASE 0 — FOUNDATION SETUP
+
+### Core Principles
+- **Monorepo-first**: Single source of truth with shared types and utilities
+- **Type safety**: End-to-end TypeScript with shared schema validation
+- **Developer experience**: Hot reload, automated testing, consistent tooling
+- **Production ready**: Security, monitoring, and deployment from day one
+
+---
+
+### 🏗 System Architecture Tasks
+
+#### Must Have (Blocking - Complete in Order)
+
+##### Monorepo Foundation
+* **P0-T1: Workspace Architecture**
+  ```
+  /
+  ├── packages/
+  │   ├── shared/          # Shared types, schemas, utils
+  │   ├── backend/         # Express.js API
+  │   ├── frontend/        # Next.js 15 App
+  │   └── database/        # Prisma schema & migrations
+  ├── apps/                # Deployment configs
+  ├── tools/               # Build scripts, CI configs
+  └── docs/                # API docs, architecture
+  ```
+  * Setup pnpm workspaces with proper dependency management
+  * Shared ESLint, Prettier, TypeScript configs
+  * Cross-package import resolution
+
+##### Shared Package (Critical First)
+* **P0-T2: Shared Schema & Types**
+  * Zod schemas for API contracts
+  * Shared TypeScript types (User, Organization, OKR, etc.)
+  * Validation utilities
+  * Date/time helpers with timezone support
+  * Constants and enums
+
+##### Backend Core
+* **P0-T3: Express.js Foundation**
+  * Express.js with TypeScript
+  * tRPC for type-safe API (replaces REST boilerplate)
+  * Request validation using shared Zod schemas
+  * Structured logging (Winston/Pino)
+  ```typescript
+  // Example: Shared contract
+  export const createUserSchema = z.object({
+    email: z.string().email(),
+    name: z.string().min(1).max(100),
+    role: z.enum(['admin', 'manager', 'employee'])
+  })
+  ```
+
+* **P0-T4: Database Layer**
+  *Supabase
+  * Prisma ORM with shared schema
+  * Database seeding scripts
+  * Migration strategy (dev → staging → prod)
+
+* **P0-T5: Security & Middleware**
+  * Helmet.js for security headers
+  * CORS with environment-specific origins
+  * Rate limiting (Redis-backed)
+  * Request/response logging middleware
+  * Health check endpoints with dependency checks
+
+##### Frontend Core
+* **P0-F1: Next.js 15 Foundation**
+  * Next.js 15 with App Router
+  * React 19 with Suspense boundaries
+  * TypeScript strict mode
+  * Import shared types from `@workspace/shared`
+
+* **P0-F2: UI Architecture**
+  * Tailwind CSS with custom design tokens
+  * Shadcn/ui components (install selectively)
+  * Radix primitives for complex interactions
+  * Dark/light theme support with system preference
+  ```typescript
+  // Design tokens approach
+  const theme = {
+    colors: {
+      primary: 'hsl(var(--primary))',
+      secondary: 'hsl(var(--secondary))',
+      // SaaS-appropriate enterprise colors
+    }
+  }
+  ```
+
+* **P0-F3: Data Layer**
+  * tRPC client with React Query integration
+  * Optimistic updates pattern
+  * Error boundary with retry mechanisms
+  * Loading states with Suspense
+
+* **P0-F4: Environment & Config**
+  ```env
+  # Backend
+  DATABASE_URL=
+  REDIS_URL=
+  JWT_SECRET=
+  GOOGLE_CLIENT_ID=
+  MICROSOFT_CLIENT_ID=
+  
+  # Frontend
+  NEXT_PUBLIC_API_URL=
+  NEXT_PUBLIC_APP_ENV=
+  ```
+
+#### Should Have (Optimize Later)
+
+##### Development Experience
+* **P0-T6: Developer Tooling**
+  * Hot reload across all packages
+  * Pre-commit hooks (lint, type-check, test)
+  * VSCode workspace with recommended extensions
+  * Docker compose for local database
+
+* **P0-F5: Testing Foundation**
+  * Vitest for unit tests
+  * Playwright for E2E tests
+  * React Testing Library for component tests
+  * Storybook for component development
+
+* **P0-T7: Observability**
+  * Structured logging with correlation IDs
+  * Basic metrics collection
+  * Error tracking (Sentry setup ready)
+
+---
+
+## 🔐 PHASE 1 — AUTHENTICATION & AUTHORIZATION
+
+### Backend Authentication
+* **P1-T1: JWT + OAuth Strategy**
+  * Passport.js with Google/Microsoft strategies
+  * JWT with refresh token rotation
+  * Session management with Redis
+  * RBAC middleware with permission decorators
+
+* **P1-T2: User Management API**
+  * User CRUD with tRPC procedures
+  * Organization invitation system
+  * Role assignment with validation
+  * Email verification flow
+
+### Frontend Authentication
+* **P1-F1: Auth Client Integration**
+  * Next.js middleware for route protection
+  * OAuth client implementation
+  * Token management with secure cookies
+  * Auth state management (Zustand/Context)
+
+* **P1-F2: Authentication UI**
+  * Login/signup forms with proper UX
+  * OAuth buttons with loading states
+  * Password reset flow
+  * User profile management
+
+* **P1-F3: Authorization Guards**
+  * Role-based component rendering
+  * Page-level route guards
+  * Permission-based UI elements
+  ```typescript
+  // Clean permission pattern
+  <WithPermission action="create" resource="okr">
+    <CreateOKRButton />
+  </WithPermission>
+  ```
+
+---
+
+## 🏢 PHASE 2 — ORGANIZATION STRUCTURE
+
+### Backend
+* **P2-T1: Organization Management**
+  * Multi-tenant architecture
+  * Department/team hierarchies
+  * User-organization relationships
+  * Invitation & onboarding APIs
+
+### Frontend
+* **P2-F1: Organization Dashboard**
+  * Org chart visualization
+  * Team management interface
+  * User invitation flows
+  * Department creation/editing
+
+---
+
+## 🎯 PHASE 3 — OKR SYSTEM
+
+### Backend
+* **P3-T1: OKR Data Model**
+  * Objectives and Key Results schema
+  * Progress tracking system
+  * Alignment and cascading logic
+  * Historical data preservation
+
+### Frontend
+* **P3-F1: OKR Interface**
+  * OKR creation wizard
+  * Progress tracking dashboard
+  * Alignment visualization
+  * Mobile-responsive design
+
+---
+
+## 📊 PHASE 4 — PERFORMANCE REVIEWS
+
+### Backend
+* **P4-T1: Review System**
+  * Review cycle management
+  * Peer feedback collection
+  * Performance ratings
+  * 360-degree feedback
+
+### Frontend
+* **P4-F1: Review Interface**
+  * Review form builder
+  * Feedback submission UI
+  * Manager review dashboard
+  * Historical performance view
+
+---
+
+## 💬 PHASE 5 — FEEDBACK & COMMUNICATION
+
+### Backend
+* **P5-T1: Feedback Engine**
+  * Real-time feedback system
+  * Feedback categorization
+  * Anonymous feedback options
+  * Notification system
+
+### Frontend
+* **P5-F1: Feedback UI**
+  * Feedback submission forms
+  * Feedback dashboard
+  * Team communication tools
+  * Notification center
+
+---
+
+## 🤖 PHASE 6 — AI INTEGRATION
+
+### Backend
+* **P6-T1: AI Services**
+  * OpenAI/Anthropic API integration
+  * Goal suggestion algorithms
+  * Performance insight generation
+  * Natural language processing
+
+### Frontend
+* **P6-F1: AI Features**
+  * AI-powered goal suggestions
+  * Performance insights dashboard
+  * Chat interface for AI assistance
+  * Smart notifications
+
+---
+
+## 📈 PHASE 7 — ANALYTICS & REPORTING
+
+### Backend
+* **P7-T1: Analytics Engine**
+  * Data aggregation pipelines
+  * Custom report generation
+  * Export functionality
+  * Performance metrics API
+
+### Frontend
+* **P7-F1: Analytics Dashboard**
+  * Interactive charts (Recharts/D3)
+  * Custom report builder
+  * Data export interface
+  * Real-time metrics
+
+---
+
+## ⚙️ PHASE 8 — SYSTEM CONFIGURATION
+
+### Backend
+* **P8-T1: Admin & Settings**
+  * System configuration API
+  * User preference management
+  * Integration settings
+  * Backup/restore functionality
+
+### Frontend
+* **P8-F1: Settings Interface**
+  * Admin control panel
+  * User preferences
+  * Integration management
+  * System health monitoring
+
+---
+
+## 🚀 DEPLOYMENT & SCALING
+
+### Infrastructure
+* **Docker containerization**
+* **CI/CD with GitHub Actions**
+* **Database migrations strategy**
+* **Environment promotion pipeline**
+* **Monitoring and alerting**
+
+---
+
+## 📊 Success Metrics
+
+| Phase | Backend Deliverable | Frontend Deliverable | Success Criteria |
+|-------|-------------------|---------------------|------------------|
+| 0 | API Foundation | UI Foundation | Health checks pass, type safety 100% |
+| 1 | Auth APIs | Login/Signup | User can authenticate and access protected routes |
+| 2 | Org Management | Team Dashboard | Multi-tenant org structure works |
+| 3 | OKR APIs | OKR Interface | Users can create, track, and align OKRs |
+| 4 | Review APIs | Review UI | Complete review cycle execution |
+| 5 | Feedback APIs | Feedback UI | Real-time feedback system |
+| 6 | AI Integration | AI Features | AI suggestions improve user productivity |
+| 7 | Analytics APIs | Reports Dashboard | Actionable insights generation |
+| 8 | Admin APIs | Settings UI | Full system configuration capability |
+
+---
+
+## 🎯 Key Optimizations Made
+
+1. **Type Safety First**: Shared schemas eliminate API contract drift
+2. **Modern Architecture**: tRPC replaces REST boilerplate, better DX
+3. **Monorepo Strategy**: Proper dependency management and code sharing
+4. **Security by Design**: Authentication/authorization from phase 1
+5. **Developer Experience**: Hot reload, testing, and tooling integrated
+6. **Production Ready**: Observability, error handling, and deployment strategy
+7. **Scalable Foundation**: Multi-tenant architecture from the start
+8. **Performance Focus**: Optimistic updates, caching, and efficient data loading
+
+
+This plan prioritizes building a solid foundation that scales, rather than rushing to features that break under load.

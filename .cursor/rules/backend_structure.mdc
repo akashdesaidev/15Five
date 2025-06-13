@@ -1,0 +1,561 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🔥 Backend Architecture Guiding Document — AI-Driven Performance Review Platform
+
+---
+
+## 1️⃣ Backend Framework
+
+**Primary framework:**
+
+* `Express.js` (Node.js 20 LTS)
+  * Simple, lightweight
+  * More controllable for AI integrations
+  * Minimal abstraction avoids unnecessary complexity
+
+**Supporting Libraries:**
+
+* `TypeScript` (strict mode)
+* `Zod` ` for request validation
+* `Prisma ORM` for database access (type-safe + migration support)
+* `tRPC` for future type-safe internal API if required
+
+---
+
+## 2️⃣ Database Stack
+
+**Primary Database:**
+
+* `PostgreSQL 16 (Supabase Cloud managed)`
+
+**ORM:**
+
+* Prisma ORM (generates full type-safe client)
+
+**Cloud Storage:**
+
+* None for MVP (deferred)
+* Future: AWS S3
+
+**Data Retention Policy:**
+
+* Soft delete strategy (no hard deletes)
+* Full audit trails
+* Historical relationships (manager chains, role changes)
+
+---
+
+## 3️⃣ Authentication & Authorization
+
+**Authentication Flow:**
+
+* Frontend: OAuth2 (Google, Microsoft)
+* Backend: JWT issued after OAuth2 flow
+* Auth token passed to backend for protected API access
+
+**Authorization Model:**
+
+* Role-based access control (RBAC)
+* User roles: Admin, HR, Manager, Employee
+* Middleware enforced permissions on each endpoint
+* Backend owns full role logic and scoping
+
+**OAuth Providers:**
+
+* Google Workspace (Primary)
+* Microsoft Azure AD (Secondary)
+
+**Auth Libraries:**
+
+* `NextAuth.js` (for frontend OAuth)
+* Custom JWT issuing middleware (backend)
+
+---
+
+## 4️⃣ Third Party Integrations
+
+| Integration                | Purpose                                            |
+| -------------------------- | -------------------------------------------------- |
+| OpenAI API                 | AI Review Suggestions / Self-Assessment Summarizer |
+| Gemini API                 | AI Failover                                        |
+| Supabase Auth              | Backup token issuing for certain flows             |
+| OAuth2 (Google, Microsoft) | Enterprise SSO Login                               |
+| SendGrid (or similar)      | Email notifications                                |
+
+---
+
+## 5️⃣ Enhanced Database Schema Design
+
+### 🧑‍💼 Users (Enhanced)
+
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    role user_role_enum NOT NULL,
+    status user_status_enum DEFAULT 'active',
+    
+    -- Employment info
+    hire_date DATE NOT NULL,
+    termination_date DATE,
+    current_manager_id UUID REFERENCES users(id),
+    
+    -- Notification preferences
+    email_notifications_enabled BOOLEAN DEFAULT true,
+    notification_frequency notification_frequency_enum DEFAULT 'weekly',
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP -- Soft delete
+);
+
+CREATE TYPE user_role_enum AS ENUM ('admin', 'hr', 'manager', 'employee');
+CREATE TYPE user_status_enum AS ENUM ('active', 'inactive', 'departed');
+CREATE TYPE notification_frequency_enum AS ENUM ('daily', 'weekly', 'monthly');
+```
+
+### 🏢 OKRs & Key Results (Enhanced)
+
+```sql
+CREATE TABLE okrs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_user_id UUID REFERENCES users(id),
+    parent_okr_id UUID REFERENCES okrs(id), -- For hierarchy
+    title TEXT NOT NULL,
+    description TEXT,
+    tags JSONB DEFAULT '[]',
+    type okr_type_enum NOT NULL,
+    status okr_status_enum DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE key_results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    okr_id UUID REFERENCES okrs(id),
+    description TEXT NOT NULL,
+    target_score INTEGER DEFAULT 10 CHECK (target_score >= 1 AND target_score <= 10),
+    current_score INTEGER DEFAULT 1 CHECK (current_score >= 1 AND current_score <= 10),
+    progress_notes TEXT,
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    version INTEGER DEFAULT 1 -- For conflict resolution
+);
+
+CREATE TABLE okr_progress_snapshots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key_result_id UUID REFERENCES key_results(id),
+    score INTEGER CHECK (score >= 1 AND score <= 10),
+    notes TEXT,
+    recorded_at TIMESTAMP DEFAULT NOW(),
+    recorded_by UUID REFERENCES users(id),
+    snapshot_type snapshot_type_enum DEFAULT 'manual'
+);
+
+CREATE TYPE okr_type_enum AS ENUM ('company', 'department', 'team', 'individual');
+CREATE TYPE okr_status_enum AS ENUM ('active', 'completed', 'archived');
+CREATE TYPE snapshot_type_enum AS ENUM ('manual', 'auto_weekly', 'cycle_end');
+```
+
+### 💬 Feedback (Enhanced)
+
+```sql
+CREATE TABLE feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    giver_id UUID REFERENCES users(id),
+    receiver_id UUID REFERENCES users(id),
+    visibility visibility_enum DEFAULT 'public',
+    feedback_text TEXT NOT NULL,
+    
+    -- Enhanced tagging system
+    skill_tags TEXT[] DEFAULT '{}',
+    company_value_tags TEXT[] DEFAULT '{}',
+    initiative_tags TEXT[] DEFAULT '{}',
+    
+    -- AI analysis
+    sentiment sentiment_enum,
+    ai_flags JSONB DEFAULT '{}',
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP -- Soft delete
+);
+
+CREATE TYPE visibility_enum AS ENUM ('public', 'private');
+CREATE TYPE sentiment_enum AS ENUM ('positive', 'neutral', 'negative');
+```
+
+### 📆 Review Cycles (Enhanced)
+
+```sql
+CREATE TABLE review_cycles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    type cycle_type_enum NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    
+    -- Grace period management
+    grace_period_start TIMESTAMP,
+    grace_period_end TIMESTAMP,
+    
+    -- Emergency/parallel cycle support
+    is_emergency_cycle BOOLEAN DEFAULT false,
+    parent_cycle_id UUID REFERENCES review_cycles(id),
+    
+    state cycle_state_enum DEFAULT 'active',
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Constraint: Only one active non-emergency cycle per time period
+    CONSTRAINT unique_active_cycle 
+        EXCLUDE (daterange(start_date, end_date, '[]') WITH &&) 
+        WHERE (state = 'active' AND is_emergency_cycle = false)
+);
+
+CREATE TYPE cycle_type_enum AS ENUM ('quarterly', 'half_yearly', 'annual', 'custom');
+CREATE TYPE cycle_state_enum AS ENUM ('active', 'grace_period', 'closed');
+```
+
+### 👥 Review Participants
+
+```sql
+CREATE TABLE review_participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cycle_id UUID REFERENCES review_cycles(id),
+    user_id UUID REFERENCES users(id),
+    participation_status participant_status_enum DEFAULT 'active',
+    joined_at TIMESTAMP DEFAULT NOW(),
+    exited_at TIMESTAMP,
+    
+    CONSTRAINT valid_participation_dates 
+        CHECK (exited_at IS NULL OR exited_at > joined_at)
+);
+
+CREATE TYPE participant_status_enum AS ENUM ('active', 'removed');
+```
+
+### 📄 Reviews (Enhanced with AI Scoring)
+
+```sql
+CREATE TABLE reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cycle_id UUID REFERENCES review_cycles(id),
+    reviewer_id UUID REFERENCES users(id),
+    reviewee_id UUID REFERENCES users(id),
+    review_type review_type_enum,
+    is_anonymous BOOLEAN DEFAULT false,
+    
+    -- Content
+    content JSONB DEFAULT '{}',
+    
+    -- AI Features
+    ai_generated_suggestion TEXT,
+    summary TEXT, -- Self-assessment summarizer output
+    
+    -- AI Scoring Components (as per PRD formula)
+    recent_feedback_score DECIMAL(3,2),
+    okr_score DECIMAL(3,2),
+    peer_feedback_score DECIMAL(3,2),
+    manager_feedback_score DECIMAL(3,2),
+    self_assessment_score DECIMAL(3,2),
+    tenure_adjustment_score DECIMAL(3,2),
+    final_ai_score DECIMAL(3,2),
+    
+    -- Status tracking
+    status review_status_enum DEFAULT 'draft',
+    submitted_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    version INTEGER DEFAULT 1 -- For conflict resolution
+);
+
+CREATE TYPE review_type_enum AS ENUM ('self', 'peer', 'manager', 'upward');
+CREATE TYPE review_status_enum AS ENUM ('draft', 'submitted', 'not_submitted');
+```
+
+### 🤖 Anonymous Review Management
+
+```sql
+CREATE TABLE anonymous_review_groups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cycle_id UUID REFERENCES review_cycles(id),
+    reviewee_id UUID REFERENCES users(id),
+    reviewer_count INTEGER DEFAULT 0,
+    anonymity_enabled BOOLEAN DEFAULT false,
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Business rule: Enable anonymity only if >= 3 reviewers
+    CONSTRAINT min_reviewers_for_anonymity 
+        CHECK (
+            (anonymity_enabled = false) OR 
+            (anonymity_enabled = true AND reviewer_count >= 3)
+        )
+);
+```
+
+### 🧠 AI Logs
+
+```sql
+CREATE TABLE ai_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    ai_task ai_task_enum NOT NULL,
+    input_snapshot JSONB NOT NULL,
+    ai_response_snapshot JSONB NOT NULL,
+    provider_used ai_provider_enum NOT NULL,
+    tokens_used INTEGER,
+    processing_time_ms INTEGER,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TYPE ai_task_enum AS ENUM ('suggestion', 'summarization', 'sentiment', 'scoring');
+CREATE TYPE ai_provider_enum AS ENUM ('openai', 'gemini');
+```
+
+### 📑 Templates
+
+```sql
+CREATE TABLE templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    questions JSONB NOT NULL,
+    version INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT true,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 📝 Enhanced Audit Logs
+
+```sql
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entity_type TEXT NOT NULL,
+    entity_id UUID NOT NULL,
+    change_type change_type_enum NOT NULL,
+    changed_by UUID REFERENCES users(id),
+    
+    -- Conflict resolution support
+    old_version INTEGER,
+    new_version INTEGER,
+    
+    change_snapshot JSONB NOT NULL,
+    conflict_resolved BOOLEAN DEFAULT false,
+    
+    changed_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TYPE change_type_enum AS ENUM ('create', 'update', 'delete', 'conflict_resolved');
+```
+
+### 📈 Performance Indexes
+
+```sql
+-- Performance indexes
+CREATE INDEX idx_reviews_cycle_reviewee ON reviews(cycle_id, reviewee_id);
+CREATE INDEX idx_feedback_receiver_created ON feedback(receiver_id, created_at);
+CREATE INDEX idx_okr_progress_snapshots_kr_time ON okr_progress_snapshots(key_result_id, recorded_at);
+CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id, changed_at);
+CREATE INDEX idx_users_manager ON users(current_manager_id);
+CREATE INDEX idx_okrs_owner ON okrs(owner_user_id, status);
+```
+
+---
+
+## 6️⃣ API Design
+
+> Full REST design, versioned `/api/v1/`
+
+### 🔑 Auth Endpoints
+
+* `POST /api/v1/auth/login`
+* `POST /api/v1/auth/refresh`
+* `POST /api/v1/auth/logout`
+
+### 👤 User Endpoints
+
+* `GET /api/v1/users`
+* `POST /api/v1/users`
+* `PATCH /api/v1/users/{id}`
+* `POST /api/v1/users/{id}/deactivate`
+* `POST /api/v1/users/{id}/reactivate`
+* `PATCH /api/v1/users/{id}/notification-preferences`
+
+### 📈 OKR Endpoints
+
+* `POST /api/v1/okrs`
+* `GET /api/v1/okrs`
+* `GET /api/v1/okrs/{id}`
+* `PATCH /api/v1/okrs/{id}`
+* `POST /api/v1/okrs/{id}/key-results`
+* `PATCH /api/v1/key-results/{id}/progress`
+* `POST /api/v1/key-results/{id}/snapshots`
+* `GET /api/v1/okrs/{id}/progress-history`
+
+### ⏱️ Time Tracking Endpoints
+
+* `POST /api/v1/time-entries`
+* `GET /api/v1/time-entries`
+* `GET /api/v1/time-entries/{id}`
+* `PATCH /api/v1/time-entries/{id}`
+* `POST /api/v1/time-allocations`
+* `GET /api/v1/time-allocations`
+* `GET /api/v1/analytics/time-utilization`
+* `GET /api/v1/analytics/time-vs-progress`
+* `GET /api/v1/reports/time-distribution`
+
+### 💬 Feedback Endpoints
+
+* `POST /api/v1/feedback`
+* `GET /api/v1/feedback`
+* `GET /api/v1/feedback/{id}`
+* `POST /api/v1/feedback/{id}/tags`
+* `PATCH /api/v1/feedback/{id}/visibility`
+
+### 📆 Review Cycle Endpoints
+
+* `POST /api/v1/review-cycles`
+* `GET /api/v1/review-cycles`
+* `GET /api/v1/review-cycles/{id}`
+* `PATCH /api/v1/review-cycles/{id}`
+* `POST /api/v1/review-cycles/{id}/participants`
+* `POST /api/v1/review-cycles/{id}/grace-period`
+* `POST /api/v1/review-cycles/{id}/emergency-cycle`
+
+### 📝 Review Submission Endpoints
+
+* `GET /api/v1/reviews`
+* `GET /api/v1/reviews/{id}`
+* `PATCH /api/v1/reviews/{id}`
+* `POST /api/v1/reviews/{id}/submit`
+* `POST /api/v1/reviews/{id}/ai-suggest`
+* `POST /api/v1/reviews/{id}/ai-score`
+* `GET /api/v1/reviews/{id}/anonymity-status`
+
+### 🤖 AI Endpoints
+
+* `POST /api/v1/ai/self-assessment-summarize`
+* `POST /api/v1/ai/sentiment-analysis`
+* `POST /api/v1/ai/review-scoring`
+* `GET /api/v1/ai/provider-status`
+
+### 📊 Analytics Endpoints
+
+* `GET /api/v1/analytics/hr-dashboard`
+* `GET /api/v1/analytics/manager-dashboard`
+* `GET /api/v1/analytics/okr-progress`
+* `POST /api/v1/analytics/exports`
+
+### 🛑 System Admin
+
+* `GET /api/v1/system/status`
+* `GET /api/v1/system/ai-status`
+* `GET /api/v1/system/audit-log`
+* `POST /api/v1/system/resolve-conflicts`
+
+---
+
+## 7️⃣ Security Measures
+
+* ✅ OAuth2 + JWT authentication
+* ✅ RBAC middleware controlling access at API layer
+* ✅ Input validation using Zod/Joi
+* ✅ SQL injection protection via Prisma ORM
+* ✅ XSS protection via input sanitization
+* ✅ CSRF protection for state-changing endpoints
+* ✅ API rate limiting (e.g., express-rate-limit)
+* ✅ AI API fallback detection with graceful degradation
+* ✅ All sensitive operations fully auditable
+* ✅ Environment secrets encrypted at rest
+* ✅ Deployment only via CI/CD with code linting and security scans
+* ✅ Anonymous review data protection with 3-reviewer minimum
+* ✅ Version-based conflict resolution for concurrent edits
+
+---
+
+## 8️⃣ Business Logic Validation
+
+### Schema Validation Functions
+
+```sql
+-- Function to validate review cycle overlaps
+CREATE OR REPLACE FUNCTION validate_cycle_overlap()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Allow emergency cycles to overlap
+    IF NEW.is_emergency_cycle = true THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Check for overlapping non-emergency active cycles
+    IF EXISTS (
+        SELECT 1 FROM review_cycles 
+        WHERE id != NEW.id 
+        AND state = 'active' 
+        AND is_emergency_cycle = false
+        AND daterange(start_date, end_date, '[]') && 
+            daterange(NEW.start_date, NEW.end_date, '[]')
+    ) THEN
+        RAISE EXCEPTION 'Overlapping active review cycles not allowed';
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER validate_cycle_overlap_trigger
+    BEFORE INSERT OR UPDATE ON review_cycles
+    FOR EACH ROW EXECUTE FUNCTION validate_cycle_overlap();
+```
+
+---
+
+## 9️⃣ PRD Compliance Summary
+
+✅ **Fully Supports:**
+- AI scoring formula with all 6 components
+- Company values & initiatives tagging system
+- Grace period management for review cycles
+- Emergency/parallel cycle handling
+- Historical OKR progress tracking with snapshots
+- User notification preferences
+- 3-reviewer minimum anonymity rule enforcement
+- Conflict resolution with versioning
+- All role permissions and workflows
+- Soft delete strategy for audit compliance
+
+✅ **Performance Optimized:**
+- Strategic indexes for common query patterns
+- Efficient constraint checking with triggers
+- Optimized for 50-100 user concurrent load
+- Proper foreign key relationships for data integrity
+
+✅ **Future-Proof Architecture:**
+- Extensible JSONB fields for evolving AI features
+- Version tracking for schema evolution
+- Comprehensive audit trail for compliance
+- Modular design for easy feature additions
+
+---
+
+# ✅ Production-Ready Backend Architecture
+
+> This is a **complete, production-grade backend architecture specification** with zero ambiguity.
+> Enhanced with improved database schema, AI scoring capabilities, and full PRD compliance.
+
+---
+
+

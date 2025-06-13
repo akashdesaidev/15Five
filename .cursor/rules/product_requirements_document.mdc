@@ -1,0 +1,580 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# AI-Driven Performance Review Platform — Product Requirements Document
+
+---
+
+## 🚀 Overview
+
+We are building an enterprise-grade, AI-augmented performance management system, inspired by platforms like Lattice and 15Five, to simplify performance management for HR teams, managers, and employees.
+
+This document defines the exact scope for MVP development with **zero ambiguity** to prevent coding agent hallucinations.
+
+**Target Users**: 50-100 users per deployment  
+**Data Retention**: Permanent storage (keep all data forever)
+
+---
+
+## 🎯 Core Modules & Features
+
+### 1️⃣ OKR & Goal Management
+
+**Functionality:**
+* Create, assign, and track Objectives and Key Results
+* Hierarchical structure supported: Company → Department → Team → Individual OKRs
+* **Scoring System**: 1-10 scale for all Key Results
+* OKR tagging supported (free-form tags)
+* Goal comments and updates allowed
+* Visual progress tracking dashboards
+
+**Permissions:**
+* **Create/Assign OKRs**: Admin, HR, Manager roles only
+* **View OKRs**: All users can view
+* **Edit OKRs**: Should be editable by creators and assignees
+* **Historical Data**: Preserve all OKR data when managers change
+
+### 1️⃣.1️⃣ Time Tracking & Effort Management
+
+**Functionality:**
+* Track time spent on objectives and key results
+* Daily/weekly time logging for employees
+* Time allocation planning for objectives
+* Time vs. progress correlation analysis
+* Effort tracking dashboards
+
+**Time Entry System:**
+* **Granularity**: Daily time entries
+* **Categories**: 
+  * Direct work
+  * Planning
+  * Collaboration
+  * Review
+  * Other
+* **Validation**: Maximum 24 hours per day
+* **Bulk Entry**: Support weekly timesheet view
+
+**Time Allocation:**
+* **Planning**: Expected weekly hours per objective
+* **Minimum Allocation**: Required focus time percentage
+* **Alerts**: Under/over allocation warnings
+* **Reallocation**: Support for changing priorities
+
+**Analytics & Reporting:**
+* Time spent vs. progress correlation
+* Team time utilization metrics
+* Resource allocation effectiveness
+* Time-based performance insights
+* Workload distribution analysis
+
+**Permissions:**
+* **Log Time**: All users for their assigned OKRs
+* **View Time Data**: 
+  * Employees: Own time entries
+  * Managers: Team time data
+  * HR/Admin: Organization-wide time data
+* **Edit Time Allocations**:
+  * Managers: Team allocations
+  * HR/Admin: All allocations
+
+**Integration with Reviews:**
+* Time utilization factors into performance scoring
+* Effort vs. impact analysis in reviews
+* Time management competency assessment
+
+---
+
+### 2️⃣ Continuous Feedback Module
+
+**Functionality:**
+* Feedback can be given anytime between any two users
+* Public and private feedback options
+* **Skill tags**: User-created free tagging system
+* Feedback categories:
+  * Skills
+  * Company values  
+  * Initiatives
+
+**Data Model:**
+* All feedback stored permanently
+* Feedback tied to specific time periods for AI analysis
+* Support both structured (rating-based) and unstructured (text) feedback
+
+---
+
+### 3️⃣ Performance Reviews (360° Reviews)
+
+**Review Cycles:**
+* **Cycle Types**: Quarterly, Half-Yearly, Annual, or fully custom
+* **Overlap Policy**: Only 1 active review cycle per employee (Sequential with Emergency Override)
+  * Exception: HR/Admin can create emergency/probationary parallel cycles
+  * Newer cycles take notification priority
+  * Each cycle maintains independent data
+* **Participant Management**: Adding/removing participants mid-cycle supported
+  * Removed participant data remains in cycle for audit
+* **Deadline Handling**: Grace period system
+  * After deadline: 3-7 day grace period with escalated reminders
+  * After grace period: Auto-close with "not submitted" flags
+  * HR can manually extend cycles
+
+**Review Components:**
+* Self-assessment
+* Peer reviews  
+* Manager reviews
+* Upward reviews
+
+**Templates:**
+* **2 Default Templates** included:
+  1. "Competency-Based Review" (rating scales + competency questions)
+  2. "Growth-Focused Review" (open-ended development questions)
+* Custom template creation supported
+* Template components:
+  * Competency-based questions
+  * Open-ended questions
+  * 1-10 rating scales
+
+**Anonymity Rules:**
+* **Minimum 3 reviewers** required for anonymous peer reviews
+* Below threshold: Default to named feedback with clear messaging
+* Anonymous feedback hidden from all users (including managers and HR)
+* Admin override available for forced anonymity in small teams
+
+---
+
+### 4️⃣ Manager–Report Chain Logic
+
+**Structure:**
+* Single direct manager per employee supported
+* **Historical Relationships**: Preserve reporting relationships when managers change
+* Automatic chain detection for review assignments
+* **Role Changes**: 
+  * Preserve existing reviews/OKRs when roles change
+  * Flag role change dates in review context
+  * Support mid-cycle role transitions with data segmentation
+
+**Employee Lifecycle:**
+* **Departing Employees**: 
+  * Deactivate active participation mid-cycle
+  * Preserve all submitted data
+  * Auto-cancel pending reviews
+  * Allow final partial reviews by managers/HR
+  * Mark departed employee data in analytics
+
+---
+
+### 5️⃣ Reviewer Workload View
+
+**Manager Dashboard:**
+* View all pending reviews across direct and indirect reports
+* Workload distribution visibility
+* Review completion tracking
+* Escalation alerts for overdue items
+
+---
+
+## 🤖 AI-Powered Features
+
+### 6️⃣ Auto-Generated Peer Review Suggestions
+
+**Trigger**: "Suggest Draft" button when starting peer/manager reviews
+
+**AI Scoring Algorithm:**
+```
+final_score = (
+    (recent_feedback_score * 0.35) +
+    (okr_score * 0.25) +
+    (peer_feedback_score * 0.15) +
+    (manager_feedback_score * 0.15) +
+    (self_assessment_score * 0.05) +
+    (tenure_adjustment_score * 0.05)
+)
+```
+
+**Data Sources:**
+* Past feedback history (weighted by recency)
+* OKR/goal progress data
+* Historical review scores
+* Tenure and role context
+
+**Exclusions for MVP:**
+* No external meeting notes
+* No project management data integration
+
+---
+
+### 7️⃣ Self-Assessment Summarizer
+
+**Functionality:**
+* "Summarize" button available after self-assessment submission
+* **AI Analysis Output:**
+  * Key themes identification
+  * Strengths & weaknesses summary
+  * Impact statements generation
+  * Development recommendations
+
+---
+
+### 8️⃣ Sentiment Analysis
+
+**Scope**: Entire review sentiment analysis (not per-question)
+* **Scoring**: Positive / Neutral / Negative classification
+* **Quality Flags**: AI flags vague or ambiguous responses
+* **Trending**: Track sentiment trends over time for individuals and teams
+
+### 9️⃣ AI Redundancy & Fallback
+
+**Primary AI**: OpenAI API
+**Fallback AI**: Gemini Free API
+**Failure Handling:**
+* Auto-switch to Gemini if OpenAI fails
+* Graceful degradation: Disable AI features if both fail
+* User notification of AI service status
+* Manual review option when AI unavailable
+
+---
+
+## 📊 Analytics & Dashboards
+
+### HR Dashboard:
+* Org-wide OKR progress tracking
+* Review completion status across all cycles
+* Company-wide feedback trends and sentiment analysis
+* Employee engagement metrics
+* Cycle performance analytics
+
+### Manager Dashboard:
+* Team OKR progress visualization
+* Team feedback summaries and sentiment trends
+* Pending review statuses and workload management
+* Direct report development tracking
+* Team performance insights
+
+**Export Options:**
+* CSV export for all reports
+* PDF export for formatted reports
+* Scheduled report generation
+
+---
+
+## 🔐 User Roles & Permissions
+
+| Role     | OKR Management | Review Management | Feedback Access | Analytics | AI Features |
+|----------|----------------|-------------------|-----------------|-----------|-------------|
+| **Admin** | Full access | Full access | All feedback visible | All dashboards | All features |
+| **HR** | Create/assign company/dept OKRs | Manage all cycles | All feedback visible | All dashboards | All features |
+| **Manager** | Create team/individual OKRs | Review direct reports | Team feedback visible | Team dashboard | Suggestion/analysis |
+| **Employee** | View assigned OKRs | Submit self-assessments | Own feedback only | Personal dashboard | Self-assessment tools |
+
+**Cross-Department Access**: Managers cannot see other departments' data
+
+---
+
+## 🔔 Notifications & Reminders
+
+**Email Notifications:**
+* **Frequency**: Weekly reminders
+* **Triggers**:
+  * Pending self-assessment submissions
+  * Pending peer review assignments  
+  * Overdue reviews (escalating urgency)
+  * Review cycle deadlines approaching
+  * New feedback received (if enabled by user)
+
+**Future Integrations** (NOT in MVP):
+* Slack notifications
+* Calendar integrations
+
+---
+
+## 🌐 Technical Implementation
+
+### Frontend Stack
+* **Framework**: Next.js 14+ with App Router
+* **Styling**: TailwindCSS
+* **UI Components**: ShadCN UI
+* **PWA Support**: Full offline capability for:
+  * Viewing existing reviews and feedback
+  * Drafting reviews (sync when online)
+  * OKR progress viewing
+  * Basic dashboard functionality
+
+### Backend Stack
+* **Runtime**: Node.js
+* **Database**: Supabase (PostgreSQL)
+* **Authentication**: OAuth2 (Google, Microsoft)
+* **API Design**: RESTful with tRPC for type safety
+
+### Conflict Resolution Strategy
+* **Optimistic Concurrency Control** using versioning
+* **Low-impact fields**: Last-write-wins (titles, descriptions)
+* **High-impact fields**: User intervention required (scores, critical comments)
+* **Conflict Resolution UI**: Show differences, allow manual merge
+* **AI Assistance**: Suggest merged resolutions when possible
+* **Full Audit Logging**: Track all changes with timestamps and users
+
+### Database Design Requirements
+* **User Management**: 
+  * Historical manager relationships table
+  * Role change audit trail
+  * Employee status tracking (active/inactive/departed)
+* **Review Cycles**:
+  * Cycle state management (active/grace-period/closed)
+  * Participant tracking with join/leave dates
+  * Template versioning
+* **OKR Structure**:
+  * Hierarchical organization support
+  * Progress tracking with historical snapshots
+  * Tag management system
+* **Time Tracking**:
+  * Time entry logging with categories
+  * Time allocation planning
+  * Time utilization analytics
+  * Historical time data preservation
+* **Feedback System**:
+  * Anonymous feedback handling
+  * Sentiment score storage
+  * AI-generated metadata storage
+
+### File Storage
+* **MVP**: No file upload functionality
+* **Future**: AWS S3 integration planned
+
+### Hosting & Deployment
+* **Frontend**: Vercel
+* **Database**: Supabase Cloud
+* **Environment**: Production and staging environments
+* **Monitoring**: Error tracking and performance monitoring
+
+### API Design
+
+> Full REST design, versioned `/api/v1/`
+
+### 🔑 Auth Endpoints
+
+* `POST /api/v1/auth/login`
+* `POST /api/v1/auth/refresh`
+* `POST /api/v1/auth/logout`
+
+### 👤 User Endpoints
+
+* `GET /api/v1/users`
+* `POST /api/v1/users`
+* `PATCH /api/v1/users/{id}`
+* `POST /api/v1/users/{id}/deactivate`
+* `POST /api/v1/users/{id}/reactivate`
+* `PATCH /api/v1/users/{id}/notification-preferences`
+
+### 📈 OKR Endpoints
+
+* `POST /api/v1/okrs`
+* `GET /api/v1/okrs`
+* `GET /api/v1/okrs/{id}`
+* `PATCH /api/v1/okrs/{id}`
+* `POST /api/v1/okrs/{id}/key-results`
+* `PATCH /api/v1/key-results/{id}/progress`
+* `POST /api/v1/key-results/{id}/snapshots`
+* `GET /api/v1/okrs/{id}/progress-history`
+
+### ⏱️ Time Tracking Endpoints
+
+* `POST /api/v1/time-entries`
+* `GET /api/v1/time-entries`
+* `GET /api/v1/time-entries/{id}`
+* `PATCH /api/v1/time-entries/{id}`
+* `POST /api/v1/time-allocations`
+* `GET /api/v1/time-allocations`
+* `GET /api/v1/analytics/time-utilization`
+* `GET /api/v1/analytics/time-vs-progress`
+* `GET /api/v1/reports/time-distribution`
+
+### 💬 Feedback Endpoints
+
+---
+
+## 🧪 Deliverables & Documentation
+
+### Code Repository
+* ✅ Public GitHub repository with MIT license
+* ✅ Clean, well-documented codebase with TypeScript
+* ✅ Comprehensive test coverage (unit + integration)
+* ✅ CI/CD pipeline with automated testing
+
+### Documentation Requirements
+* ✅ **README.md** containing:
+  * Project overview and features
+  * AI feature usage instructions and examples
+  * Local development setup (step-by-step)
+  * Production deployment guide
+  * API documentation links
+  * Environment variables template (.env.example)
+  * Troubleshooting guide
+* ✅ **Live Demo**: Deployed instance with sample data
+* ✅ **Screenshots/Demo Video**: Optional but recommended
+* ✅ **Database Schema Documentation**: ERD and table descriptions
+
+### Environment Configuration
+```bash
+# Required Environment Variables
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENAI_API_KEY=
+GEMINI_API_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
+```
+
+---
+
+## 🔄 Non-MVP Features (Future Roadmap)
+
+### Advanced AI Features
+* Multi-manager support with complex reporting structures
+* AI-powered promotion readiness index
+* Embedding-based semantic search across reviews
+* Burnout prediction algorithms
+* Private AI Coach Bot for employees
+* Advanced competency framework integration
+
+### Enhanced Functionality  
+* Document attachment support
+* Advanced audit logs and compliance features
+* Custom report builder with drag-drop interface
+* Integration with HRIS systems (BambooHR, Workday)
+* Mobile app development
+* Advanced analytics with predictive insights
+
+### Enterprise Features
+* Single Sign-On (SSO) with SAML/OIDC
+* Advanced security controls and data governance
+* Multi-tenant architecture
+* API rate limiting and monitoring
+* Advanced caching and performance optimization
+
+---
+
+## ⚠️ Critical Implementation Notes
+
+### Data Integrity
+* All user actions must be auditable
+* No data deletion—only soft deletes with timestamps
+* Version control for all editable content
+* Backup and recovery procedures documented
+
+### Performance Requirements
+* Page load times under 3 seconds
+* AI response times under 10 seconds
+* Support for 100 concurrent users
+* Database query optimization for large datasets
+
+### Security Requirements
+* Input validation and sanitization
+* SQL injection prevention
+* XSS protection
+* CSRF token implementation
+* Rate limiting on AI API calls
+* Secure session management
+
+### Error Handling
+* Graceful degradation when services fail
+* User-friendly error messages
+* Comprehensive logging for debugging
+* Automated error reporting and alerting
+
+---
+
+## ✅ Definition of Done
+
+**Each feature is complete when:**
+1. ✅ Functionality implemented and tested
+2. ✅ Unit and integration tests passing
+3. ✅ Documentation updated
+4. ✅ Error handling implemented
+5. ✅ Performance requirements met
+6. ✅ Security review completed
+7. ✅ User acceptance testing passed
+
+**MVP is complete when:**
+1. ✅ All core modules functional
+2. ✅ AI features working with fallback
+3. ✅ All user roles and permissions implemented
+4. ✅ Production deployment successful
+5. ✅ Documentation complete and accurate
+6. ✅ Demo environment populated with sample data
+
+---
+
+**This PRD is designed to eliminate coding agent hallucinations through explicit specifications, clear constraints, and comprehensive edge case handling.**
+
+CREATE TABLE okr_progress_snapshots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key_result_id UUID REFERENCES key_results(id),
+    score INTEGER CHECK (score >= 1 AND score <= 10),
+    notes TEXT,
+    recorded_at TIMESTAMP DEFAULT NOW(),
+    recorded_by UUID REFERENCES users(id),
+    snapshot_type snapshot_type_enum DEFAULT 'manual'
+);
+
+CREATE TYPE snapshot_type_enum AS ENUM ('manual', 'auto_weekly', 'cycle_end');
+
+### Time Tracking Tables
+
+```sql
+CREATE TYPE time_entry_category_enum AS ENUM (
+    'direct_work',
+    'planning',
+    'collaboration',
+    'review',
+    'other'
+);
+
+CREATE TABLE time_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    okr_id UUID REFERENCES okrs(id),
+    key_result_id UUID REFERENCES key_results(id),
+    date DATE NOT NULL,
+    hours_spent DECIMAL(5,2) NOT NULL CHECK (hours_spent > 0 AND hours_spent <= 24),
+    description TEXT,
+    category time_entry_category_enum NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP -- Soft delete
+);
+
+CREATE TABLE time_allocations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    okr_id UUID REFERENCES okrs(id),
+    expected_weekly_hours DECIMAL(5,2) CHECK (expected_weekly_hours > 0 AND expected_weekly_hours <= 40),
+    minimum_allocation_percentage INTEGER CHECK (minimum_allocation_percentage >= 0 AND minimum_allocation_percentage <= 100),
+    start_date DATE NOT NULL,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP -- Soft delete
+);
+
+CREATE TABLE time_utilization_metrics (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    okr_id UUID REFERENCES okrs(id),
+    week_starting DATE NOT NULL,
+    planned_hours DECIMAL(5,2),
+    actual_hours DECIMAL(5,2),
+    efficiency_score DECIMAL(3,2), -- Calculated field based on progress vs time
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_time_entries_user_date ON time_entries(user_id, date);
+CREATE INDEX idx_time_entries_okr ON time_entries(okr_id);
+CREATE INDEX idx_time_allocations_okr ON time_allocations(okr_id);
+CREATE INDEX idx_time_utilization_user_week ON time_utilization_metrics(user_id, week_starting);
+```
+
+### Feedback Tables

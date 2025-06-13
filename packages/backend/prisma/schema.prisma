@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
+}
+
+model Organization {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  users       User[]
+  departments Department[]
+  teams       Team[]
+  okrs        OKR[]
+
+  @@schema("public")
+  @@map("organizations")
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique
+  firstName       String    @map("first_name")
+  lastName        String    @map("last_name")
+  role            UserRole
+  status          UserStatus @default(active)
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  organizationId  String?    @db.Uuid @map("organization_id")
+  manager         User?      @relation("UserToManager", fields: [managerId], references: [id])
+  managerId       String?    @db.Uuid @map("manager_id")
+  directReports   User[]     @relation("UserToManager")
+  ownedOKRs       OKR[]      @relation("OKROwner")
+  recordedSnapshots OKRProgressSnapshot[] @relation("SnapshotRecorder")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  @@schema("public")
+  @@map("users")
+}
+
+model Department {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String
+  organizationId  String    @db.Uuid @map("organization_id")
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  teams           Team[]
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  @@schema("public")
+  @@map("departments")
+}
+
+model Team {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String
+  departmentId    String    @db.Uuid @map("department_id")
+  department      Department @relation(fields: [departmentId], references: [id])
+  organizationId  String    @db.Uuid @map("organization_id")
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  @@schema("public")
+  @@map("teams")
+}
+
+model OKR {
+  id              String    @id @default(uuid()) @db.Uuid
+  title           String
+  description     String?
+  type            OKRType
+  status          OKRStatus @default(active)
+  parentOkrId     String?   @db.Uuid @map("parent_okr_id")
+  parentOkr       OKR?      @relation("OKRHierarchy", fields: [parentOkrId], references: [id])
+  childOkrs       OKR[]     @relation("OKRHierarchy")
+  ownerId         String    @db.Uuid @map("owner_id")
+  owner           User      @relation("OKROwner", fields: [ownerId], references: [id])
+  organizationId  String    @db.Uuid @map("organization_id")
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  tags            String[]
+  snapshots       OKRProgressSnapshot[] @relation("OKRSnapshots")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  @@schema("public")
+  @@map("okrs")
+}
+
+model OKRProgressSnapshot {
+  id            String    @id @default(uuid()) @db.Uuid
+  okrId         String    @db.Uuid @map("okr_id")
+  okr           OKR       @relation("OKRSnapshots", fields: [okrId], references: [id])
+  score         Int       @db.SmallInt
+  notes         String?
+  recordedAt    DateTime  @default(now()) @map("recorded_at")
+  recordedById  String    @db.Uuid @map("recorded_by_id")
+  recordedBy    User      @relation("SnapshotRecorder", fields: [recordedById], references: [id])
+  snapshotType  SnapshotType @default(manual) @map("snapshot_type")
+
+  @@schema("public")
+  @@map("okr_progress_snapshots")
+}
+
+enum UserRole {
+  admin
+  hr
+  manager
+  employee
+
+  @@schema("public")
+  @@map("user_roles")
+}
+
+enum UserStatus {
+  active
+  inactive
+  departed
+
+  @@schema("public")
+  @@map("user_statuses")
+}
+
+enum OKRType {
+  company
+  department
+  team
+  individual
+
+  @@schema("public")
+  @@map("okr_types")
+}
+
+enum OKRStatus {
+  active
+  completed
+  archived
+
+  @@schema("public")
+  @@map("okr_statuses")
+}
+
+enum SnapshotType {
+  manual
+  auto_weekly
+  cycle_end
+
+  @@schema("public")
+  @@map("snapshot_types")
+} 

@@ -1,0 +1,128 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 🎯 15Five Development Todo List
+
+## 🏗 PHASE 0 — SYSTEM BOOTSTRAP
+
+### Backend Setup
+// ... existing code ...
+
+### Frontend Setup
+
+#### 1️⃣ Project Initialization
+- [ ] Create Next.js 14 project with App Router
+- [ ] Setup TypeScript configuration
+- [ ] Install and configure TailwindCSS
+- [ ] Install ShadCN UI components
+- [ ] Setup Inter font family
+- [ ] Install Lucide icons
+- [ ] Configure ESLint and Prettier
+- [ ] Setup Jest and React Testing Library
+
+#### 2️⃣ Design System Implementation
+- [ ] Create color palette constants (Tailwind config)
+  - Primary: #4F46E5 (Indigo 600)
+  - Secondary: #6366F1 (Indigo 500)
+  - Success: #22C55E (Green 500)
+  - Error: #EF4444 (Red 500)
+  - Warning: #F59E0B (Amber 500)
+  - Text colors and backgrounds
+
+- [ ] Implement spacing system
+  - xs: 4px
+  - sm: 8px
+  - md: 16px
+  - lg: 24px
+  - xl: 32px
+  - 2xl: 48px
+  - 3xl: 64px
+
+#### 3️⃣ Core Components Development
+- [ ] Layout components
+  - [ ] MainLayout with sidebar
+  - [ ] DashboardLayout
+  - [ ] AuthLayout
+- [ ] Navigation
+  - [ ] Sidebar component
+  - [ ] TopHeader component
+  - [ ] NavigationMenu component
+- [ ] Base components
+  - [ ] Card
+  - [ ] Modal
+  - [ ] Drawer
+  - [ ] Toast notifications
+  - [ ] Form elements
+  - [ ] Table
+  - [ ] Tabs
+  - [ ] DatePicker
+  - [ ] Stepper
+- [ ] Loading states
+  - [ ] Skeleton components
+    - [ ] SkeletonCard
+    - [ ] SkeletonTable
+    - [ ] SkeletonAvatar
+  - [ ] Loading spinners
+  - [ ] Progress indicators
+
+#### 4️⃣ Authentication Flow
+- [ ] Login page
+- [ ] OAuth integration (Google, Microsoft)
+- [ ] Auth context and hooks
+- [ ] Protected routes
+- [ ] Role-based access control (RBAC)
+
+#### 5️⃣ Core Feature Pages
+- [ ] Dashboard
+  - [ ] OKR overview
+  - [ ] Review cycles
+  - [ ] Feedback summary
+- [ ] User Management
+  - [ ] User directory
+  - [ ] Profile management
+  - [ ] Team management
+- [ ] OKR Management
+  - [ ] OKR creation
+  - [ ] Progress tracking
+  - [ ] Time tracking interface
+- [ ] Review System
+  - [ ] Review cycles
+  - [ ] Self assessment
+  - [ ] Peer reviews
+  - [ ] Manager reviews
+- [ ] Feedback System
+  - [ ] Give feedback interface
+  - [ ] Received feedback view
+  - [ ] Feedback moderation (for managers)
+
+#### 6️⃣ State Management & API Integration
+- [ ] Setup React Query/SWR
+- [ ] API client configuration
+- [ ] Error handling
+- [ ] Loading states
+- [ ] Optimistic updates
+
+#### 7️⃣ Performance Optimization
+- [ ] Implement React.lazy for code splitting
+- [ ] Setup service worker for PWA
+- [ ] Image optimization
+- [ ] Implement proper suspense boundaries
+- [ ] Setup proper error boundaries
+
+#### 8️⃣ Testing & Documentation
+- [ ] Unit tests for components
+- [ ] Integration tests for pages
+- [ ] E2E tests with Cypress
+- [ ] Storybook setup for component documentation
+- [ ] API documentation with Swagger UI
+
+### Shared Tasks
+// ... existing code ...
+
+# Additional Workspace Rule
+
+- Always use `yarn` for all commands (installing dependencies, running scripts, Prisma commands, etc.)
+- Do NOT use `npm` or `npx` for any commands in this project, especially in a monorepo or workspace context.
+- Example: Use `yarn prisma migrate dev --name init` instead of `npx prisma migrate dev --name init`.
